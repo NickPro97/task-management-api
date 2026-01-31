@@ -2,6 +2,7 @@ package com.nick.task_management_api.service;
 
 import com.nick.task_management_api.dto.CreateTaskRequest;
 import com.nick.task_management_api.dto.TaskResponse;
+import com.nick.task_management_api.dto.UpdateTaskRequest;
 import com.nick.task_management_api.entity.Task;
 import com.nick.task_management_api.entity.TaskStatus;
 import com.nick.task_management_api.entity.User;
@@ -76,5 +77,49 @@ public class TaskService {
         response.setCreatedAt(task.getCreatedAt());
         response.setUpdatedAt(task.getUpdatedAt());
         return response;
+    }
+
+    // Update a task
+    public TaskResponse updateTask(UUID taskId, UpdateTaskRequest request) {
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new RuntimeException("Task not found"));
+
+        if (request.getTitle() != null) {
+            task.setTitle(request.getTitle());
+        }
+        if (request.getDescription() != null) {
+            task.setDescription(request.getDescription());
+        }
+        if (request.getDueDate() != null) {
+            task.setDueDate(request.getDueDate());
+        }
+        if (request.getStatus() != null) {
+            task.setStatus(request.getStatus());
+        }
+
+        Task updatedTask = taskRepository.save(task);
+        return mapToResponse(updatedTask);
+    }
+
+    // Delete a task
+    public void deleteTask(UUID taskId) {
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new RuntimeException("Task not found"));
+        taskRepository.delete(task);
+    }
+
+    // Toggle task status (PENDING <-> COMPLETED)
+    public TaskResponse toggleTaskStatus(UUID taskId) {
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new RuntimeException("Task not found"));
+
+        if (task.getStatus() == TaskStatus.PENDING) {
+            task.setStatus(TaskStatus.COMPLETED);
+        } else {
+            task.setStatus(TaskStatus.PENDING);
+        }
+
+        Task updatedTask = taskRepository.save(task);
+        return mapToResponse(updatedTask);
     }
 }
