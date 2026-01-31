@@ -6,6 +6,7 @@ import com.nick.task_management_api.dto.UpdateTaskRequest;
 import com.nick.task_management_api.entity.Task;
 import com.nick.task_management_api.entity.TaskStatus;
 import com.nick.task_management_api.entity.User;
+import com.nick.task_management_api.exception.ResourceNotFoundException;
 import com.nick.task_management_api.repository.TaskRepository;
 import com.nick.task_management_api.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +31,7 @@ public class TaskService {
     public TaskResponse createTask(UUID userId, CreateTaskRequest request) {
         // 1. Find the user
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         Task task = new Task();
         task.setTitle(request.getTitle());
@@ -63,7 +64,8 @@ public class TaskService {
 
     public TaskResponse getTaskById(UUID taskId) {
         Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new RuntimeException("Task not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
+
         return mapToResponse(task);
     }
 
@@ -82,7 +84,7 @@ public class TaskService {
     // Update a task
     public TaskResponse updateTask(UUID taskId, UpdateTaskRequest request) {
         Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new RuntimeException("Task not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
 
         if (request.getTitle() != null) {
             task.setTitle(request.getTitle());
@@ -104,14 +106,14 @@ public class TaskService {
     // Delete a task
     public void deleteTask(UUID taskId) {
         Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new RuntimeException("Task not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
         taskRepository.delete(task);
     }
 
     // Toggle task status (PENDING <-> COMPLETED)
     public TaskResponse toggleTaskStatus(UUID taskId) {
         Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new RuntimeException("Task not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
 
         if (task.getStatus() == TaskStatus.PENDING) {
             task.setStatus(TaskStatus.COMPLETED);

@@ -3,6 +3,7 @@ package com.nick.task_management_api.service;
 import com.nick.task_management_api.dto.CreateUserRequest;
 import com.nick.task_management_api.dto.UserResponse;
 import com.nick.task_management_api.entity.User;
+import com.nick.task_management_api.exception.EmailAlreadyExistsException;
 import com.nick.task_management_api.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -24,7 +25,7 @@ public class UserService {
 
         // 1. Check if email already exists
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Email already registered");
+            throw new EmailAlreadyExistsException("Email already registered");
         }
 
         // 2. Create new user
